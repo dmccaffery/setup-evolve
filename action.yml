@@ -1,0 +1,53 @@
+name: Setup evolve
+description: >-
+  Install the evolve CLI from GitHub Releases with caching and fail-closed
+  supply-chain verification (checksums, SLSA build-provenance attestations,
+  and cosign keyless signatures).
+author: BitWise Media Group
+
+branding:
+  icon: shield
+  color: purple
+
+inputs:
+  version:
+    description: >-
+      Version of evolve to install. Accepts an exact version ("0.1.0" or
+      "v0.1.0"), "latest", or an npm-semver range ("~>0.1", ">=0.1, <1",
+      "^0.1"). Commas may separate range clauses; they are treated as AND.
+    required: false
+    default: latest
+  pre-release:
+    description: >-
+      When "true", prerelease versions are eligible candidates alongside
+      stable releases for "latest" and range matching. An exact prerelease
+      version (for example "0.2.0-rc.1") installs regardless of this flag.
+    required: false
+    default: 'false'
+  github-token:
+    description: >-
+      Token used to query the GitHub API (release listing, asset download,
+      attestation lookup). The default workflow token is sufficient.
+    required: false
+    default: ${{ github.token }}
+  cache:
+    description: >-
+      When "true", persist the verified installation across workflow runs
+      with the GitHub Actions cache. The runner tool cache is always used.
+      Cached installations are cryptographically re-verified on restore.
+    required: false
+    default: 'true'
+
+outputs:
+  version:
+    description: The resolved evolve version that was installed (no "v" prefix).
+  path:
+    description: Absolute path of the directory containing the evolve binary.
+  cache-hit:
+    description: >-
+      Where the installation came from: "tool-cache" (runner tool cache),
+      "cache" (GitHub Actions cache), or "false" (fresh, verified download).
+
+runs:
+  using: node24
+  main: dist/index.js
