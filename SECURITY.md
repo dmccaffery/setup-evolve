@@ -23,3 +23,8 @@ release workflow built. It defends against:
 
 Out of scope: a compromise of evolve's release workflow itself (that identity is the trust anchor), and a compromise of
 the runner executing this action.
+
+## Code scanning triage
+
+CodeQL findings are triaged in [`security/code-scanning/index.md`](security/code-scanning/index.md), with a report per
+finding recording why it was dismissed or how it was remediated.
