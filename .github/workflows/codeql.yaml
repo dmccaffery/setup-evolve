@@ -26,7 +26,7 @@ jobs:
       actions: read
       # checkout the repository
       contents: read
-    uses: bitwise-media-group/github-workflows/.github/workflows/codeql-node.yaml@42af0238cffd9caa426fbc6d4721b492f28c914a # v1.0.0
+    uses: bitwise-media-group/github-workflows/.github/workflows/codeql-node.yaml@077a003a620f49bd0062c73fc761dbea05d7fb70 # v1.1.0
     with:
       # exclude the bundled dist/ output; its sources are analysed via src/
       config-file: ./.github/codeql/codeql-config.yaml
