@@ -18,7 +18,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "all": "npm run check && npm run typecheck && npm run test && npm run build"
+    "all": "npm run check && npm run typecheck && npm run test && npm run build",
+    "pr": "npm run check:fix && npm run format && npm run all"
   },
   "repository": {
     "type": "git",
