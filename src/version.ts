@@ -1,4 +1,5 @@
 import * as semver from 'semver'
+import { MIN_SUPPORTED_VERSION } from './constants'
 import { getReleaseByTag, listReleases, type Octokit, type Release } from './github'
 
 export interface ResolvedVersion {
@@ -32,6 +33,15 @@ export function parseVersionSpec(input: string): VersionSpec {
   return { kind: 'range', range }
 }
 
+function assertMinVersion(version: string): void {
+  if (semver.lt(version, MIN_SUPPORTED_VERSION)) {
+    throw new Error(
+      `evolve ${version} is not supported: versions before v${MIN_SUPPORTED_VERSION} were signed ` +
+        `with a different release pipeline identity. Use v${MIN_SUPPORTED_VERSION} or later.`,
+    )
+  }
+}
+
 export async function resolveVersion(
   octokit: Octokit,
   input: string,
@@ -41,6 +51,7 @@ export async function resolveVersion(
 
   if (spec.kind === 'exact') {
     const release = await getReleaseByTag(octokit, `v${spec.version}`)
+    assertMinVersion(spec.version)
     return { version: spec.version, release }
   }
 
@@ -71,5 +82,6 @@ export async function resolveVersion(
 
   const release = candidates.get(best)
   if (!release) throw new Error(`internal error: no release recorded for version ${best}`)
+  assertMinVersion(best)
   return { version: best, release }
 }

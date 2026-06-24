@@ -104,7 +104,10 @@ describe('downloadAndVerify — reading the extracted binary', () => {
     expect(verifyCosignBundle).toHaveBeenCalledTimes(1)
     const call = verifyCosignBundle.mock.calls[0]
     expect(call).toBeDefined()
-    const [bundleArg, binaryArg] = call!
+    if (!call) {
+      throw new Error('verifyCosignBundle was not called')
+    }
+    const [bundleArg, binaryArg] = call
     expect(bundleArg).toEqual({ mock: 'bundle' })
     expect(Buffer.isBuffer(binaryArg)).toBe(true)
     expect(binaryArg.equals(BINARY)).toBe(true)

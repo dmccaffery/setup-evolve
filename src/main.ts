@@ -2,6 +2,7 @@ import * as core from '@actions/core'
 import * as tc from '@actions/tool-cache'
 import { evictInstall, restoreFromActionsCache, saveToActionsCache, toolDir } from './cache'
 import { TOOL_NAME } from './constants'
+import { errorMessage } from './error'
 import { createOctokit } from './github'
 import { getInputs } from './inputs'
 import { downloadAndVerify, reverifyInstall } from './install'
@@ -31,7 +32,7 @@ export async function run(): Promise<void> {
       await writeSummary(version, cacheHit, { installDir, cosign })
     } catch (err) {
       core.warning(
-        `Tool-cache installation at ${found} failed re-verification and was discarded: ${err instanceof Error ? err.message : err}`,
+        `Tool-cache installation at ${found} failed re-verification and was discarded: ${errorMessage(err)}`,
       )
       await evictInstall(version, platform)
     }
@@ -50,7 +51,7 @@ export async function run(): Promise<void> {
         await writeSummary(version, cacheHit, { installDir, cosign })
       } catch (err) {
         core.warning(
-          `Actions cache entry for evolve ${version} failed re-verification and was discarded: ${err instanceof Error ? err.message : err}`,
+          `Actions cache entry for evolve ${version} failed re-verification and was discarded: ${errorMessage(err)}`,
         )
         await evictInstall(version, platform)
       }
@@ -75,5 +76,5 @@ export async function run(): Promise<void> {
 }
 
 run().catch((err: unknown) => {
-  core.setFailed(err instanceof Error ? err : String(err))
+  core.setFailed(errorMessage(err))
 })

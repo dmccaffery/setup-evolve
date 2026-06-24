@@ -7,6 +7,7 @@ import {
   WORKFLOW_PATH,
   WORKFLOW_REPOSITORY,
 } from '../constants'
+import { errorMessage } from '../error'
 
 // The single verification policy applied to every sigstore bundle this action
 // accepts: certificate chains to the public-good Fulcio, the signing identity
@@ -135,7 +136,7 @@ export async function verifySlsaProvenance(
         workflowPath: workflow.path,
       }
     } catch (err) {
-      failures.push(err instanceof Error ? err.message : String(err))
+      failures.push(errorMessage(err))
     }
   }
 

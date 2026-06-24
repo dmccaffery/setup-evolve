@@ -28,7 +28,7 @@ const DIGEST = 'd8ff511609b474a2de9272523b6031b1b197863c334c272388e2a3389b4c97f6
 const SIGNER = {
   identity: {
     subjectAlternativeName:
-      'https://github.com/bitwise-media-group/evolve/.github/workflows/release.yaml@refs/heads/main',
+      'https://github.com/bitwise-media-group/github-workflows/.github/workflows/release.yaml@e37b7f61bbd233ae77aad81c967d08ad49220b8f',
   },
 }
 
@@ -42,7 +42,7 @@ describe('verification policy', () => {
     // Regression guard: loosening any of these is a security change.
     expect(VERIFY_POLICY).toEqual({
       certificateIdentityURI:
-        '^https://github\\.com/bitwise-media-group/evolve/\\.github/workflows/release\\.yaml@refs/heads/main$',
+        '^https://github\\.com/bitwise-media-group/github-workflows/\\.github/workflows/release\\.yaml@.+$',
       certificateIssuer: 'https://token.actions.githubusercontent.com',
       tlogThreshold: 1,
       ctLogThreshold: 1,

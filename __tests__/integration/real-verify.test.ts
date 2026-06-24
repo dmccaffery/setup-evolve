@@ -1,4 +1,4 @@
-// Real cryptographic verification against live evolve v0.1.0 release assets.
+// Real cryptographic verification against live evolve v0.3.0 release assets.
 // Network-bound and therefore gated: RUN_INTEGRATION=1 npx vitest run
 // Set SIGSTORE_TUF_FORCE_CACHE=1 to verify with the TUF root seeded in the
 // sigstore package instead of refreshing from tuf-repo-cdn.sigstore.dev
@@ -14,7 +14,7 @@ import { createOctokit, fetchAttestations } from '../../src/github'
 import { parseChecksums } from '../../src/verify/digests'
 import { getVerifier, VERIFY_POLICY, verifySlsaProvenance } from '../../src/verify/sigstore'
 
-const VERSION = '0.1.0'
+const VERSION = '0.3.0'
 const PLATFORMS: Record<string, { asset: string; bundle: string }> = {
   'linux-x64': {
     asset: `evolve_${VERSION}_linux_amd64.tar.gz`,
@@ -59,7 +59,7 @@ describe.skipIf(!process.env.RUN_INTEGRATION || !target)('real sigstore verifica
     // Happy path: the genuine binary verifies under the pinned policy.
     const signer = verifier.verify(bundle, binary)
     expect(signer.identity?.subjectAlternativeName).toBe(
-      'https://github.com/bitwise-media-group/evolve/.github/workflows/release.yaml@refs/heads/main',
+      'https://github.com/bitwise-media-group/github-workflows/.github/workflows/release.yaml@e37b7f61bbd233ae77aad81c967d08ad49220b8f',
     )
 
     // Negative path: a single flipped byte must fail verification.

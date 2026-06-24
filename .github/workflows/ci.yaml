@@ -43,7 +43,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        version: [latest, 0.1.0, "~>0", ">=0.1, <1"]
+        version: [latest, 0.3.0, "~>0", ">=0.1, <1"]
         include:
           - os: ubuntu-latest
             version: latest
@@ -103,7 +103,7 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
       - uses: ./
         with:
-          version: 0.1.0
+          version: 0.3.0
 
   e2e-cache-restore:
     needs: e2e-cache-seed
@@ -115,7 +115,7 @@ jobs:
       - id: setup
         uses: ./
         with:
-          version: 0.1.0
+          version: 0.3.0
       - name: Assert Actions-cache hit (re-verified)
         shell: bash
         env:

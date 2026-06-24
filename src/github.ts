@@ -58,8 +58,8 @@ export async function getReleaseByTag(octokit: Octokit, tag: string): Promise<Re
     })
     return toRelease(data)
   } catch (err) {
-    if (err instanceof Error && 'status' in err && err.status === 404) {
-      throw new Error(`no evolve release found for tag ${tag}`)
+    if (hasStatusCode(err, 404)) {
+      throw new Error(`no evolve release found for tag ${tag}`, { cause: err })
     }
     throw err
   }
@@ -113,4 +113,10 @@ async function fetchBundle(bundleUrl: string): Promise<unknown> {
   }
   const compressed = new Uint8Array(await res.arrayBuffer())
   return JSON.parse(Buffer.from(uncompress(compressed)).toString('utf8'))
+}
+
+function hasStatusCode(error: unknown, status: number): error is Error & { status: number } {
+  return (
+    error instanceof Error && 'status' in error && (error as { status?: unknown }).status === status
+  )
 }

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { MIN_SUPPORTED_VERSION } from '../src/constants'
 import type { Octokit } from '../src/github'
 import { parseVersionSpec, resolveVersion } from '../src/version'
 
@@ -28,8 +29,9 @@ function fakeOctokit(releases: ReturnType<typeof release>[]): Octokit {
 const RELEASES = [
   release('v0.1.0'),
   release('v0.2.0'),
-  release('v0.3.0-rc.1', true),
   release('v0.2.1'),
+  release('v0.3.0'),
+  release('v0.4.0-rc.1', true),
   release('v1.0.0', false, true), // draft: must never be visible
   release('nightly'), // non-semver tag: ignored
 ]
@@ -65,40 +67,40 @@ describe('resolveVersion', () => {
 
   it('latest picks the max stable release', async () => {
     const { version, release: rel } = await resolveVersion(octokit, 'latest', false)
-    expect(version).toBe('0.2.1')
-    expect(rel.tag).toBe('v0.2.1')
+    expect(version).toBe('0.3.0')
+    expect(rel.tag).toBe('v0.3.0')
   })
 
   it('latest with pre-release lets prereleases compete', async () => {
     const { version } = await resolveVersion(octokit, 'latest', true)
-    expect(version).toBe('0.3.0-rc.1')
+    expect(version).toBe('0.4.0-rc.1')
   })
 
   it('ranges exclude prereleases unless pre-release is set', async () => {
-    await expect(resolveVersion(octokit, '>0.2.1', false)).rejects.toThrow(/no evolve release/)
-    const { version } = await resolveVersion(octokit, '>0.2.1', true)
-    expect(version).toBe('0.3.0-rc.1')
+    await expect(resolveVersion(octokit, '>0.3.0', false)).rejects.toThrow(/no evolve release/)
+    const { version } = await resolveVersion(octokit, '>0.3.0', true)
+    expect(version).toBe('0.4.0-rc.1')
   })
 
   it('comma ranges work', async () => {
-    const { version } = await resolveVersion(octokit, '>=0.1, <0.2.1', false)
-    expect(version).toBe('0.2.0')
+    const { version } = await resolveVersion(octokit, '>=0.3, <0.4', false)
+    expect(version).toBe('0.3.0')
   })
 
   it('~> ranges work with npm tilde semantics', async () => {
-    const { version } = await resolveVersion(octokit, '~>0.2.0', false)
-    expect(version).toBe('0.2.1')
+    const { version } = await resolveVersion(octokit, '~>0.3.0', false)
+    expect(version).toBe('0.3.0')
   })
 
   it('never selects drafts', async () => {
     const { version } = await resolveVersion(octokit, '>=0.1', false)
-    expect(version).toBe('0.2.1')
+    expect(version).toBe('0.3.0')
   })
 
   it('exact versions resolve via the tag even as prereleases', async () => {
-    const { version, release: rel } = await resolveVersion(octokit, 'v0.3.0-rc.1', false)
-    expect(version).toBe('0.3.0-rc.1')
-    expect(rel.tag).toBe('v0.3.0-rc.1')
+    const { version, release: rel } = await resolveVersion(octokit, 'v0.4.0-rc.1', false)
+    expect(version).toBe('0.4.0-rc.1')
+    expect(rel.tag).toBe('v0.4.0-rc.1')
   })
 
   it('exact versions that do not exist produce a clear error', async () => {
@@ -108,6 +110,21 @@ describe('resolveVersion', () => {
   })
 
   it('no-match errors list nearest candidates', async () => {
-    await expect(resolveVersion(octokit, '>=2', false)).rejects.toThrow(/nearest candidates: 0.2.1/)
+    await expect(resolveVersion(octokit, '>=2', false)).rejects.toThrow(/nearest candidates: 0.3.0/)
+  })
+
+  it('rejects exact versions older than the minimum supported version', async () => {
+    await expect(resolveVersion(octokit, '0.1.0', false)).rejects.toThrow(
+      new RegExp(`not supported.*v${MIN_SUPPORTED_VERSION}`),
+    )
+    await expect(resolveVersion(octokit, 'v0.2.1', false)).rejects.toThrow(
+      new RegExp(`not supported.*v${MIN_SUPPORTED_VERSION}`),
+    )
+  })
+
+  it('rejects ranges that resolve to a version older than the minimum supported version', async () => {
+    await expect(resolveVersion(octokit, '>=0.1, <0.3', false)).rejects.toThrow(
+      new RegExp(`not supported.*v${MIN_SUPPORTED_VERSION}`),
+    )
   })
 })
